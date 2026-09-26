@@ -31,8 +31,8 @@ int main(void)
         16
     };
 
-    float ballSpeedX = 400.0f;
-    float ballSpeedY = 200.0f;
+    float ballSpeedX = 600.0f;
+    float ballSpeedY = 350.0f;
 
     while (!WindowShouldClose())
     {
@@ -101,9 +101,8 @@ int main(void)
             float ballCenter = ball.y + ball.height / 2;
             float hitPosition = (ballCenter - paddleCenter) / (leftPaddle.height / 2);
 
-            ballSpeedX *= -1;
+            ballSpeedX = 600.0f;
             ballSpeedY = hitPosition * 500.0f;
-            ballSpeedX *= 1.05f;
         }
 
         if (CheckCollisionRecs(ball, rightPaddle) && ballSpeedX > 0)
@@ -114,18 +113,19 @@ int main(void)
             float ballCenter = ball.y + ball.height / 2;
             float hitPosition = (ballCenter - paddleCenter) / (rightPaddle.height / 2);
 
-            ballSpeedX *= -1;
+            ballSpeedX = -600.0f;
             ballSpeedY = hitPosition * 500.0f;
-            ballSpeedX *= 1.05f;
         }
 
         if (ball.x < -ball.width || ball.x > screenWidth)
         {
+            bool wasMovingLeft = ballSpeedX < 0;
+
             ball.x = screenWidth / 2 - ball.width / 2;
             ball.y = screenHeight / 2 - ball.height / 2;
 
-            ballSpeedX = (ballSpeedX < 0) ? 400.0f : -400.0f;
-            ballSpeedY = 200.0f;
+            ballSpeedX = wasMovingLeft ? 600.0f : -600.0f;
+            ballSpeedY = 350.0f;
         }
 
         BeginDrawing();
