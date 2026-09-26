@@ -1,98 +1,164 @@
 #include "raylib.h"
 
-int main(void){
-	const int screenWidth = 800;
-	const int screenHeight = 450;
+int main(void)
+{
+    const int screenWidth = 800;
+    const int screenHeight = 450;
 
-	InitWindow(screenWidth, screenHeight, "Pong");
-	SetTargetFPS(0); // uncapped fps
-	
-	Rectangle leftPaddle = {30, 175, 15, 100};
-	Rectangle rightPaddle = {755, 175, 15, 100};
+    InitWindow(screenWidth, screenHeight, "Pong");
+    SetTargetFPS(0);
 
-	Rectangle ball = {392, 217, 16, 16};
+    Rectangle leftPaddle = {
+        30,
+        screenHeight / 2 - 50,
+        15,
+        100
+    };
 
-	float ballSpeedX = 400.0f;
-	float ballSpeedY = 250.0f;
+    Rectangle rightPaddle = {
+        screenWidth - 45,
+        screenHeight / 2 - 50,
+        15,
+        100
+    };
 
-	float paddleSpeed = 500.0f;
+    float paddleSpeed = 500.0f;
 
-	while (!WindowShouldClose()){
-		float dt = GetFrameTime();
+    Rectangle ball = {
+        screenWidth / 2 - 8,
+        screenHeight / 2 - 8,
+        16,
+        16
+    };
 
-		if (IsKeyDown(KEY_W))
-			leftPaddle.y -= paddleSpeed * dt;
+    float ballSpeedX = 400.0f;
+    float ballSpeedY = 200.0f;
 
-		if (IsKeyDown(KEY_S))
-			leftPaddle.y += paddleSpeed * dt;
+    while (!WindowShouldClose())
+    {
+        float dt = GetFrameTime();
 
-		if (IsKeyDown(KEY_O))
-			rightPaddle.y -= paddleSpeed * dt;
+        if (IsKeyDown(KEY_W))
+        {
+            leftPaddle.y -= paddleSpeed * dt;
+        }
 
-		if (IsKeyDown(KEY_L))
-			rightPaddle.y += paddleSpeed * dt;
+        if (IsKeyDown(KEY_S))
+        {
+            leftPaddle.y += paddleSpeed * dt;
+        }
 
-		if (leftPaddle.y < 0)
-			leftPaddle.y = 0;
+        if (IsKeyDown(KEY_O))
+        {
+            rightPaddle.y -= paddleSpeed * dt;
+        }
 
-		if (leftPaddle.y + leftPaddle.height > screenHeight)
-			leftPaddle.y = screenHeight - leftPaddle.height;
+        if (IsKeyDown(KEY_L))
+        {
+            rightPaddle.y += paddleSpeed * dt;
+        }
 
-		if (rightPaddle.y < 0)
-			rightPaddle.y = 0;
+        if (leftPaddle.y < 0)
+        {
+            leftPaddle.y = 0;
+        }
 
-		if (rightPaddle.y + rightPaddle.height > screenHeight)
-			rightPaddle.y = screenHeight - rightPaddle.height;
+        if (leftPaddle.y + leftPaddle.height > screenHeight)
+        {
+            leftPaddle.y = screenHeight - leftPaddle.height;
+        }
 
-		ball.x += ballSpeedX * dt;
-		ball.y += ballSpeedY * dt;
+        if (rightPaddle.y < 0)
+        {
+            rightPaddle.y = 0;
+        }
 
-		if (ball.y <= 0){
-			ball.y = 0;
-			ballSpeedY *= -1;
-		}
+        if (rightPaddle.y + rightPaddle.height > screenHeight)
+        {
+            rightPaddle.y = screenHeight - rightPaddle.height;
+        }
 
-		if (ball.y + ball.height >= screenHeight){
-			ball.y = screenHeight - ball.height;
-			ballSpeedY *= -1;
-		}
+        ball.x += ballSpeedX * dt;
+        ball.y += ballSpeedY * dt;
 
-		if (CheckCollisionRecs(ball, leftPaddle) && ballSpeedX < 0){
-			ball.x = leftPaddle.x + leftPaddle.width;
-			ballSpeedX *= -1;
-		}
+        if (ball.y <= 0)
+        {
+            ball.y = 0;
+            ballSpeedY *= -1;
+        }
 
-		if (CheckCollisionRecs(ball, rightPaddle) && ballSpeedX > 0){
-			ball.x = rightPaddle.x - ball.width;
-			ballSpeedX *= -1;
-		}
+        if (ball.y + ball.height >= screenHeight)
+        {
+            ball.y = screenHeight - ball.height;
+            ballSpeedY *= -1;
+        }
 
-		if (ball.x < -ball.width || ball.x > screenWidth){
-			ball.x = screenWidth / 2 - ball.width / 2;
-			ball.y = screenHeight / 2 - ball.height / 2;
+        if (CheckCollisionRecs(ball, leftPaddle) && ballSpeedX < 0)
+        {
+            ball.x = leftPaddle.x + leftPaddle.width;
 
-			ballSpeedX *= -1;
-		}
+            float paddleCenter = leftPaddle.y + leftPaddle.height / 2;
+            float ballCenter = ball.y + ball.height / 2;
+            float hitPosition = (ballCenter - paddleCenter) / (leftPaddle.height / 2);
 
-		BeginDrawing();
+            ballSpeedX *= -1;
+            ballSpeedY = hitPosition * 500.0f;
+            ballSpeedX *= 1.05f;
+        }
 
-		ClearBackground(BLACK);
+        if (CheckCollisionRecs(ball, rightPaddle) && ballSpeedX > 0)
+        {
+            ball.x = rightPaddle.x - ball.width;
 
-		for (int y = 0; y < screenHeight; y += 20){
-			DrawRectangle(screenWidth / 2 - 2, y, 4, 10, DARKGRAY);
-		}
+            float paddleCenter = rightPaddle.y + rightPaddle.height / 2;
+            float ballCenter = ball.y + ball.height / 2;
+            float hitPosition = (ballCenter - paddleCenter) / (rightPaddle.height / 2);
 
-		DrawRectangleRec(leftPaddle, GREEN);
-		DrawRectangleRec(rightPaddle, GREEN);
+            ballSpeedX *= -1;
+            ballSpeedY = hitPosition * 500.0f;
+            ballSpeedX *= 1.05f;
+        }
 
-		DrawRectangleRec(ball, WHITE);
+        if (ball.x < -ball.width || ball.x > screenWidth)
+        {
+            ball.x = screenWidth / 2 - ball.width / 2;
+            ball.y = screenHeight / 2 - ball.height / 2;
 
-		DrawText(TextFormat("FPS: %d", GetFPS()), 10, 10, 20, GREEN);
+            ballSpeedX = (ballSpeedX < 0) ? 400.0f : -400.0f;
+            ballSpeedY = 200.0f;
+        }
 
-		EndDrawing();
-	}
+        BeginDrawing();
 
-	CloseWindow();
+        ClearBackground(BLACK);
 
-	return 0;
+        for (int y = 0; y < screenHeight; y += 20)
+        {
+            DrawRectangle(
+                screenWidth / 2 - 2,
+                y,
+                4,
+                10,
+                DARKGRAY
+            );
+        }
+
+        DrawRectangleRec(leftPaddle, GREEN);
+        DrawRectangleRec(rightPaddle, GREEN);
+        DrawRectangleRec(ball, WHITE);
+
+        DrawText(
+            TextFormat("FPS: %d", GetFPS()),
+            10,
+            10,
+            20,
+            GREEN
+        );
+
+        EndDrawing();
+    }
+
+    CloseWindow();
+
+    return 0;
 }
